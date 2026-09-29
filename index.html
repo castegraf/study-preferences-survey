@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Preferences Survey</title>
+    <meta name="description" content="Explore study strategies that may work well for you." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23283750'/%3E%3Cpath d='M17 18h30v28H17z' fill='none' stroke='%23f6b93b' stroke-width='4'/%3E%3Cpath d='M23 27h18M23 35h12' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <style>
+      :root { --navy:#283750; --ink:#1d2636; --muted:#657083; --gold:#f6b93b; --paper:#fffdf9; --line:#e6e8ec; --blue:#eaf1ff; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:#f2f5f8; color:var(--ink); font:16px/1.5 Arial, Helvetica, sans-serif; }
+      main { max-width:780px; margin:0 auto; padding:34px 18px 56px; }
+      header { background:var(--navy); color:white; border-radius:20px; padding:30px; box-shadow:0 12px 26px #1d263622; }
+      h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.6rem); line-height:1.1; }
+      h2 { margin:0; font-size:1.25rem; }
+      .intro { margin:0; color:#e7ecf5; max-width:620px; }
+      .scale, .card, #result { background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:22px; margin-top:18px; }
+      .scale p { margin:10px 0 0; color:var(--muted); }
+      .legend { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+      .legend span { background:var(--blue); border-radius:9px; padding:8px; font-size:.88rem; text-align:center; }
+      .question { padding:20px 0; border-bottom:1px solid var(--line); }
+      .question:last-child { border-bottom:0; padding-bottom:0; }
+      .question p { margin:0 0 12px; font-weight:700; }
+      .tag { display:inline-block; margin-left:7px; color:#fff; background:var(--navy); border-radius:999px; font-size:.75rem; padding:2px 8px; vertical-align:middle; }
+      .choices { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+      label.choice { cursor:pointer; border:1px solid #cdd4df; border-radius:9px; padding:9px 5px; text-align:center; font-size:.9rem; background:white; }
+      label.choice:has(input:checked) { background:#fff4d6; border-color:#d69e19; }
+      input { accent-color:var(--navy); }
+      button { border:0; background:var(--gold); color:#172237; font-weight:700; font-size:1rem; padding:14px 20px; border-radius:11px; cursor:pointer; margin-top:20px; width:100%; }
+      button:hover { filter:brightness(.96); }
+      #result { display:none; border:2px solid var(--gold); }
+      #result.show { display:block; }
+      .scores { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0; }
+      .score { border-radius:11px; padding:10px; text-align:center; background:#f2f5f8; }
+      .score strong { display:block; font-size:1.35rem; color:var(--navy); }
+      .note { color:var(--muted); font-size:.92rem; margin-bottom:0; }
+      .reading-guide { margin-top:18px; padding:17px; border-radius:12px; background:#fff4d6; }
+      .reading-guide h3 { margin:0 0 8px; font-size:1.05rem; color:var(--navy); }
+      .reading-guide ul { margin:8px 0 12px; padding-left:20px; }
+      .reflection { margin:0; font-weight:700; }
+      @media (max-width:520px) { main { padding:20px 13px 40px; } header { padding:24px; } .choices { grid-template-columns:repeat(2,1fr); } .legend, .scores { grid-template-columns:repeat(2,1fr); } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Study Preferences Survey</h1>
+        <p class="intro">This short survey helps you explore study strategies that may be useful for you. It does not label you or define how you can learn.</p>
+      </header>
+
+      <section class="scale" aria-labelledby="instructions">
+        <h2 id="instructions">Instructions</h2>
+        <p>Read each statement and choose the answer that is most true for you.</p>
+        <div class="legend"><span><b>1</b><br>Never</span><span><b>2</b><br>Sometimes</span><span><b>3</b><br>Often</span><span><b>4</b><br>Very often</span></div>
+      </section>
+
+      <form id="survey" class="card">
+        <div id="questions"></div>
+        <button type="submit">See my study preferences</button>
+      </form>
+
+      <section id="result" aria-live="polite">
+        <h2>Your result</h2>
+        <p id="summary"></p>
+        <div class="scores" id="scores"></div>
+        <div class="reading-guide">
+          <h3>Your reading mission</h3>
+          <p id="reading-intro"></p>
+          <ul id="characteristics"></ul>
+          <p class="reflection" id="reflection"></p>
+        </div>
+        <p class="note">Try strategies from different categories. Your preferences can change depending on the task, subject, and situation.</p>
+      </section>
+    </main>
+    <script>
+      const items = [
+        ['V','I understand ideas better when I see diagrams, charts, colors, or images.'],
+        ['A','I remember information better after I hear it explained or discuss it.'],
+        ['R','Writing notes or rewriting ideas helps me remember them.'],
+        ['K','I learn better when I can practice, build, move, or use real-life examples.'],
+        ['V','I like using mind maps, symbols, or visual summaries when I study.'],
+        ['A','I like reading my notes aloud or explaining them to another person.'],
+        ['R','I prefer instructions that I can read and follow step by step.'],
+        ['K','I find it easier to learn when an activity is hands-on or active.'],
+        ['V','I can often remember where information was placed on a page or screen.'],
+        ['A','Group discussions help me understand a topic more deeply.'],
+        ['R','I learn well by making lists, summaries, and flashcards with words.'],
+        ['K','I understand abstract ideas better when I connect them to a real situation.']
+      ];
+      const names = { V:'Visual', A:'Aural', R:'Read/Write', K:'Kinesthetic' };
+      const characteristics = {
+        V:['They respond well to diagrams, charts, arrows, and symbols.','They often prefer seeing the big picture before the details.','They may find visual summaries helpful.'],
+        A:['They learn well by hearing information and discussing ideas.','They may prefer to listen carefully rather than take many notes.','They can benefit from reading their work aloud.'],
+        R:['They have a strong preference for written words.','They often benefit from handouts, notes, and written assignments.','They may remember better after taking and reviewing notes.'],
+        K:['They learn through active participation and real-life examples.','They may enjoy practical tasks and hands-on activities.','They often connect ideas to experiences, projects, or practice.']
+      };
+      const q = document.getElementById('questions');
+      q.innerHTML = items.map(([type,text], i) => `<div class="question"><p>${i+1}. ${text}<span class="tag">${type}</span></p><div class="choices">${[1,2,3,4].map(n => `<label class="choice"><input required type="radio" name="q${i}" value="${n}" /> ${n}</label>`).join('')}</div></div>`).join('');
+      document.getElementById('survey').addEventListener('submit', e => {
+        e.preventDefault();
+        const totals = {V:0,A:0,R:0,K:0};
+        items.forEach(([type], i) => totals[type] += Number(new FormData(e.target).get('q'+i)));
+        const ranked = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+        const highest = ranked[0][1];
+        const leaders = ranked.filter(x=>x[1] === highest).map(x=>names[x[0]]);
+        document.getElementById('summary').textContent = `Your strongest study preference${leaders.length > 1 ? 's are' : ' is'} ${leaders.join(' and ')}.`;
+        document.getElementById('scores').innerHTML = ranked.map(([k,v]) => `<div class="score"><b>${names[k]}</b><strong>${v}/12</strong></div>`).join('');
+        const leaderKeys = ranked.filter(x=>x[1] === highest).map(x=>x[0]);
+        document.getElementById('reading-intro').textContent = `Find classmates with a similar result. Read the ${leaders.join(' and ')} section${leaders.length > 1 ? 's' : ''} and check whether these characteristics match the text:`;
+        document.getElementById('characteristics').innerHTML = leaderKeys.flatMap(k => characteristics[k]).map(item => `<li>${item}</li>`).join('');
+        document.getElementById('reflection').textContent = 'Do you agree with this result? Why or why not?';
+        const result = document.getElementById('result'); result.classList.add('show'); result.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    </script>
+  </body>
+</html>
